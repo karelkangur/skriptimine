@@ -1,11 +1,11 @@
 #!/bin/bash
-# Skript väljastab kasutajale tervituse ilma reavahetusteta samal real.
+# Skript väljastab tervituse süsteemi sisselogitud kasutajale.
 
-# 1. Väljasta "Tere, " ilma reavahetuseta (-n lipp jätab reavahetuse ära)
+# 1. Väljasta "Tere, " ilma reavahetuseta
 echo -n "Tere, "
 
-# 2. Tekita muutuja kasutaja nimega ja väljasta ilma reavahetuseta
-KASUTAJA="User"
+# 2. Dünaamiline muutuja süsteemi kasutajanimega (whoami)
+KASUTAJA=$(whoami)
 echo -n "$KASUTAJA"
 
 # 3. Väljasta "!" koos reavahetusega
