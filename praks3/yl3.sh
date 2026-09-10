@@ -1,18 +1,19 @@
 #!/bin/bash
-# Skript arvutab täidetud busside arvu ja mahajäänud inimeste arvu, kasutades expr käsku.
+# Skript arvutab vajalike busside arvu vastavalt reisijate ja kohtade arvule.
 
-echo -n "Mitu reisijat on grupis: "
+echo -n "Sisesta reisijate arv: "
 read reisijaid
 
-echo -n "Mitu kohta on uhes bussis: "
+echo -n "Sisesta kohtade arv bussis: "
 read kohti
 
-# Täielikult täidetud busside arv (täisarvuline jagamine)
+# Täielikult täidetud busside arv ja ülejäänud reisijad
 bussid=$(expr $reisijaid / $kohti)
+jaak=$(expr $reisijaid % $kohti)
 
-# Maha jäänud inimeste arv (jäägi leidmine %)
-mahajaasid=$(expr $reisijaid % $kohti)
+# Kui keegi jäi maha, on vaja lisabussi
+if [ $jaak -gt 0 ]; then
+    bussid=$(expr $bussid + 1)
+fi
 
-echo "----------------------------------------"
-echo "Taielikult taidetud busse: $bussid"
-echo "Maha jaanud inimesi: $mahajaasid"
+echo "Kokku on vaja $bussid bussi"
