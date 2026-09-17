@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Skript väljastab kasvava tärnidest kolmnurga
+
+read -p "Sisesta ridade arv: " ridade_arv
+
+for (( i=1; i<=ridade_arv; i++ )); do
+
+    echo -n "$i. "
+
+    for (( j=1; j<=i; j++ )); do
+        echo -n "* "
+    done
+
+    echo ""
+
+done

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Skript väljastab o-dest ja tärnidest koosneva kujundi
+
+read -p "Sisesta ridade arv: " ridade_arv
+
+for (( i=1; i<=ridade_arv; i++ )); do
+
+    echo -n "$i. "
+
+    for (( j=1; j<=ridade_arv; j++ )); do
+
+        if (( j <= ridade_arv - i )); then
+            echo -n "o "
+        else
+            echo -n "* "
+        fi
+
+    done
+
+    echo ""
+
+done

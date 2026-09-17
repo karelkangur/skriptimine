@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Skript väljastab kasutaja määratud suurusega seest tühja ristküliku
+
+read -p "Sisesta ridade arv: " read_arv
+read -p "Sisesta tärnide arv reas: " tarnide_arv
+
+for (( i=1; i<=read_arv; i++ )); do
+
+    echo -n "$i. "
+
+    for (( j=1; j<=tarnide_arv; j++ )); do
+
+        if (( i == 1 || i == read_arv || j == 1 || j == tarnide_arv )); then
+            echo -n "* "
+        else
+            echo -n "  "
+        fi
+
+    done
+
+    echo ""
+
+done
+
