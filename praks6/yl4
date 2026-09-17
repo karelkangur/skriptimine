@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Skript kontrollib arvude 1 kuni 20 kohta, kas need on algarvud
+
+for arv in {1..20}; do
+
+    jagaja=2
+
+    if (( arv < 2 )); then
+        echo "$arv - ei ole algarv"
+        continue
+    fi
+
+    while (( arv % jagaja != 0 )); do
+        jagaja=$((jagaja + 1))
+    done
+
+    if (( jagaja == arv )); then
+        echo "$arv - on algarv"
+    else
+        echo "$arv - ei ole algarv"
+    fi
+
+done

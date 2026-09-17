@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Skript arvutab kasutaja sisestatud täisarvu numbrite summa
+
+read -p "Sisesta suvaline täisarv: " arv
+
+algne_arv=$arv
+summa=0
+
+while (( arv != 0 )); do
+    number=$((arv % 10))
+    summa=$((summa + number))
+    arv=$((arv / 10))
+done
+
+echo "Arvu $algne_arv numbrite summa on $summa"
