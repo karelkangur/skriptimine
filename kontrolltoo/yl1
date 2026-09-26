@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Skript leiab kõik õnnenumbrid vahemikus 1000-9999
+# Õnnenumbri numbrite korduva liitmise lõpptulemus on 7
+
+for (( algne_arv=1000; algne_arv<=9999; algne_arv++ )); do
+
+    # Säilitame algse arvu ja kasutame arvutamiseks koopiat
+    arv=$algne_arv
+
+    # Kordame numbrite liitmist, kuni alles jääb ühekohaline arv
+    while (( arv > 9 )); do
+
+        summa=0
+        ajutine=$arv
+
+        # Eraldame arvust numbrid ükshaaval
+        while (( ajutine > 0 )); do
+
+            # Võtame viimase numbri
+            number=$((ajutine % 10))
+
+            # Liidame numbri summale
+            summa=$((summa + number))
+
+            # Eemaldame arvust viimase numbri
+            ajutine=$((ajutine / 10))
+
+        done
+
+        # Jätkame saadud summaga
+        arv=$summa
+
+    done
+
+    # Kui lõpptulemus on 7, väljastame algse arvu
+    if (( arv == 7 )); then
+        echo "$algne_arv"
+    fi
+
+done

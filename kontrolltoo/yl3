@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Skript genereerib 5 erinevat juhuslikku arvu vahemikus 1-50
+
+ajutine_fail="/tmp/lotonumbrid_$$.txt"
+
+# Loome tühja ajutise faili
+> "$ajutine_fail"
+
+# Genereerime 5 erinevat numbrit
+while (( $(wc -l < "$ajutine_fail") < 5 )); do
+
+    number=$((RANDOM % 50 + 1))
+
+    # Kontrollime, kas number on juba failis olemas
+    if ! grep -qx "$number" "$ajutine_fail"; then
+        echo "$number" >> "$ajutine_fail"
+    fi
+
+done
+
+# Kuupäev ja kellaaeg
+aeg=$(date "+%d.%m.%Y %H:%M:%S")
+
+echo "Vali, kuhu tulemus väljastada:"
+echo "1 - terminali"
+echo "2 - faili"
+read -p "Valik: " valik
+
+case $valik in
+
+    1)
+        echo "Kuupäev ja kellaaeg: $aeg"
+        echo -n "Lotonumbrid: "
+        tr '\n' ' ' < "$ajutine_fail"
+        echo ""
+        ;;
+
+    2)
+        read -p "Sisesta faili nimi: " failinimi
+
+        echo "Kuupäev ja kellaaeg: $aeg" >> "$failinimi"
+        echo -n "Lotonumbrid: " >> "$failinimi"
+        tr '\n' ' ' < "$ajutine_fail" >> "$failinimi"
+        echo "" >> "$failinimi"
+        echo "--------------------" >> "$failinimi"
+
+        echo "Tulemus salvestati faili $failinimi"
+        ;;
+
+    *)
+        echo "Vigane valik"
+        ;;
+
+esac
+
+# Kustutame ajutise faili
+rm "$ajutine_fail"

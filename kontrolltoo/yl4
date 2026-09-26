@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Skript lahendab ruutvõrrandi Ax² + Bx + C = 0
+
+# Kontrollime argumentide arvu
+if (( $# != 3 )); then
+    echo "Kasutamine: $0 A B C"
+    exit 1
+fi
+
+A=$1
+B=$2
+C=$3
+
+# A ei tohi olla 0
+if (( $(echo "$A == 0" | bc -l) )); then
+    echo "Viga: A ei tohi olla 0."
+    exit 1
+fi
+
+# Arvutame diskriminandi
+D=$(echo "$B * $B - 4 * $A * $C" | bc -l)
+
+# Kontrollime diskriminanti
+if (( $(echo "$D < 0" | bc -l) )); then
+
+    echo "Reaalarvulisi lahendeid ei ole."
+
+elif (( $(echo "$D == 0" | bc -l) )); then
+
+    x=$(echo "(-1 * $B) / (2 * $A)" | bc -l)
+
+    printf "x = %.5f\n" "$x"
+
+else
+
+    x1=$(echo "(-1 * $B + sqrt($D)) / (2 * $A)" | bc -l)
+    x2=$(echo "(-1 * $B - sqrt($D)) / (2 * $A)" | bc -l)
+
+    printf "x1 = %.5f\n" "$x1"
+    printf "x2 = %.5f\n" "$x2"
+
+fi
