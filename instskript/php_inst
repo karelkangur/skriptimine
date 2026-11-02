@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# kontrollime kas php ja php-mysql on juba installitud
+if dpkg -s php &>/dev/null && dpkg -s php-mysql &>/dev/null; then
+        echo "PHP ja PHP-mysql juba installitud"
+
+else
+        echo "PHP ja PHP-mysql installimine"
+
+        # installime php ja mysql toe taustal
+        apt-get install php php-mysql -y >/dev/null &
+        pid=$!
+
+        # spinner töötab seni kuni installimine käib
+        while kill -0 "$pid" 2>/dev/null; do
+
+                echo -ne "\r|"
+                sleep 0.15
+                echo -ne "\r/"
+                sleep 0.15
+                echo -ne "\r-"
+                sleep 0.15
+                echo -ne "\r\\"
+                sleep 0.15
+
+        done
+
+        echo
+        echo "PHP ja PHP-mysql installitud edukalt"
+
+fi
