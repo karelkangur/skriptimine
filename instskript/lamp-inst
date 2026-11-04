@@ -1,0 +1,118 @@
+#!/bin/bash
+
+set -e
+export DEBIAN_FRONTEND=noninteractive
+
+# Muuda need enda andmeteks.
+OPILANE="SINU NIMI"
+GRUPP="SINU GRUPP"
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Skript tuleb käivitada root-õigustes."
+    exit 1
+fi
+
+# Kontrollib, kas pakett on paigaldatud.
+installed() {
+    [[ $(dpkg-query -W -f='${Status}' "$1" 2>/dev/null) == "install ok installed" ]]
+}
+
+# 1. Abipaketid
+apt-get update
+apt-get install -y wget ca-certificates gnupg debconf-utils openssl
+
+# 2. Oracle MySQL 8.4 LTS
+if installed mysql-community-server; then
+    echo "Oracle MySQL on juba paigaldatud."
+else
+    if installed mariadb-server; then
+        echo "MariaDB on juba paigaldatud. Kontrolli seda enne MySQL-i installimist."
+        exit 1
+    fi
+
+    echo "Paigaldan Oracle MySQL-i..."
+    MYSQL_PASS=$(openssl rand -hex 16)
+
+    wget -q -O /tmp/mysql-apt-config.deb \
+        https://dev.mysql.com/get/mysql-apt-config_0.8.40-1_all.deb
+
+    debconf-set-selections <<'EOF'
+mysql-apt-config mysql-apt-config/select-server select mysql-8.4-lts
+mysql-apt-config mysql-apt-config/select-tools select Disabled
+mysql-apt-config mysql-apt-config/select-product select Ok
+EOF
+
+    dpkg -i /tmp/mysql-apt-config.deb
+    apt-get update
+
+    echo "mysql-community-server mysql-community-server/root-pass password $MYSQL_PASS" | debconf-set-selections
+    echo "mysql-community-server mysql-community-server/re-root-pass password $MYSQL_PASS" | debconf-set-selections
+
+    apt-get install -y mysql-server
+
+    cat > /root/.my.cnf <<EOF
+[client]
+host=localhost
+user=root
+password=$MYSQL_PASS
+EOF
+    chmod 600 /root/.my.cnf
+    rm -f /tmp/mysql-apt-config.deb
+fi
+
+systemctl enable --now mysql
+
+if [[ ! -f /root/.my.cnf ]]; then
+    echo "MySQL on olemas, aga /root/.my.cnf puudub. Seadista olemasoleva serveri root-parool eraldi."
+    exit 1
+fi
+chmod 600 /root/.my.cnf
+
+mysql -e 'SELECT 1' > /dev/null
+
+# 3. Apache2
+if installed apache2; then
+    echo "Apache2 on juba paigaldatud."
+else
+    apt-get install -y apache2
+fi
+systemctl enable --now apache2
+
+# 4. PHP ja Apache PHP-moodul
+if installed php && installed php-cli && installed php-mysql && installed libapache2-mod-php; then
+    echo "PHP ja vajalikud moodulid on juba paigaldatud."
+else
+    apt-get install -y php php-cli php-mysql libapache2-mod-php
+fi
+systemctl restart apache2
+
+# 5. Veebifailid
+cat > /var/www/html/index.html <<EOF
+<!doctype html>
+<html lang="et">
+<head><meta charset="utf-8"><title>LAMP</title></head>
+<body>
+<h1>LAMP server töötab!</h1>
+<p>Õpilane: $OPILANE</p>
+<p>Grupp: $GRUPP</p>
+<p>Paigaldatud/kontrollitud: $(date '+%Y-%m-%d %H:%M:%S')</p>
+</body>
+</html>
+EOF
+
+echo '<?php phpinfo(); ?>' > /var/www/html/info.php
+chmod 644 /var/www/html/index.html /var/www/html/info.php
+
+# 6. Lõpuraport
+printf '\n========== LAMP REPORT ==========\n'
+echo "Apache2: $(apache2 -v 2>&1 | head -n 1)"
+echo "  Status: $(systemctl is-active apache2)"
+echo "  Autostart: $(systemctl is-enabled apache2)"
+echo "PHP: $(php -r 'echo PHP_VERSION;')"
+echo "MySQL: $(mysql --version)"
+echo "  Status: $(systemctl is-active mysql)"
+echo "  Autostart: $(systemctl is-enabled mysql)"
+echo "Veebileht: /var/www/html/index.html"
+echo "PHP test: /var/www/html/info.php"
+echo "MySQL seaded: /root/.my.cnf (olemas)"
+echo "=================================\n"
